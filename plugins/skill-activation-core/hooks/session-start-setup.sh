@@ -1,14 +1,29 @@
 #!/bin/bash
 # SessionStart Hook - Environment setup and welcome message
 
+HOOK_INPUT=$(cat)
+
+workspace_root=$(echo "$HOOK_INPUT" | jq -r '.workspace_root // empty' 2>/dev/null)
+cwd_from_input=$(echo "$HOOK_INPUT" | jq -r '.cwd // empty' 2>/dev/null)
+
+if [[ "$workspace_root" == "null" ]]; then
+  workspace_root=""
+fi
+if [[ "$cwd_from_input" == "null" ]]; then
+  cwd_from_input=""
+fi
+
+PROJECT_ROOT="${workspace_root:-$cwd_from_input}"
+if [[ -z "$PROJECT_ROOT" ]]; then
+  PROJECT_ROOT=$(pwd)
+fi
+PROJECT_ROOT="${PROJECT_ROOT%/}"
+PROJECT_NAME=$(basename "$PROJECT_ROOT")
+
 echo ""
 echo "🚀 Claude Code Session Started"
 echo "================================"
 echo ""
-
-# Detect project info
-PROJECT_ROOT="${CLAUDE_PLUGIN_ROOT}/../.."
-PROJECT_NAME=$(basename "$PROJECT_ROOT")
 
 echo "📁 Project: $PROJECT_NAME"
 echo ""

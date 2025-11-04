@@ -1,0 +1,7 @@
+{
+  "session_id": "test-session",
+  "prompt": "Please help me build a backend API route",
+  "cwd": "/tmp/example-workspace",
+  "workspace_root": "/tmp/example-workspace",
+  "permission_mode": "read-write"
+}

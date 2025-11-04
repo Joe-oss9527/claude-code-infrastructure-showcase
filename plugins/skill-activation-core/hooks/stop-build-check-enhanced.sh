@@ -10,8 +10,12 @@ event_info=$(cat)
 # Extract session ID
 session_id=$(echo "$event_info" | jq -r '.session_id // empty')
 
-# Cache directory in project
-cache_dir="${CLAUDE_PLUGIN_ROOT}/.claude/tsc-cache/${session_id:-default}"
+if [[ "$session_id" == "null" || -z "$session_id" ]]; then
+    session_id="default"
+fi
+
+# Cache directory (shared location defined by Claude Code hook contract)
+cache_dir="${HOME}/.claude/tsc-cache/${session_id}"
 
 # Check if cache exists
 if [[ ! -d "$cache_dir" ]]; then

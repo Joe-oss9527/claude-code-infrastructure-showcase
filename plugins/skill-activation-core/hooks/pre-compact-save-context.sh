@@ -1,8 +1,24 @@
 #!/bin/bash
 # PreCompact Hook - Auto-save context before compaction
 
-# Use CLAUDE_PLUGIN_ROOT to find project root
-PROJECT_ROOT="${CLAUDE_PLUGIN_ROOT}/../.."
+HOOK_INPUT=$(cat)
+
+workspace_root=$(echo "$HOOK_INPUT" | jq -r '.workspace_root // empty' 2>/dev/null)
+cwd_from_input=$(echo "$HOOK_INPUT" | jq -r '.cwd // empty' 2>/dev/null)
+
+if [[ "$workspace_root" == "null" ]]; then
+  workspace_root=""
+fi
+if [[ "$cwd_from_input" == "null" ]]; then
+  cwd_from_input=""
+fi
+
+# Determine project root from hook payload (fallback to current directory)
+PROJECT_ROOT="${workspace_root:-$cwd_from_input}"
+if [[ -z "$PROJECT_ROOT" ]]; then
+  PROJECT_ROOT=$(pwd)
+fi
+PROJECT_ROOT="${PROJECT_ROOT%/}"
 DEV_ACTIVE_DIR="${PROJECT_ROOT}/dev/active"
 
 if [ -d "$DEV_ACTIVE_DIR" ]; then

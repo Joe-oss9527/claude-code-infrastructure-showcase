@@ -20,6 +20,34 @@ interface SessionTracking {
     edited_files: EditedFile[];
 }
 
+function parseEditedFile(line: string): EditedFile | null {
+    if (!line) {
+        return null;
+    }
+
+    // Preferred tab-delimited format: timestamp \t tool \t path
+    const tabParts = line.split('\t');
+    if (tabParts.length >= 3) {
+        const [timestamp, tool, ...pathParts] = tabParts;
+        const path = pathParts.join('\t').trim();
+        if (timestamp && path) {
+            return { timestamp, tool: tool || 'unknown', path };
+        }
+    }
+
+    // Legacy colon-delimited format: timestamp : path : repo
+    const colonParts = line.split(':');
+    if (colonParts.length >= 2) {
+        const timestamp = colonParts[0].trim();
+        const path = colonParts[1].trim();
+        if (timestamp && path) {
+            return { timestamp, tool: 'legacy', path };
+        }
+    }
+
+    return null;
+}
+
 function getFileCategory(filePath: string): 'backend' | 'frontend' | 'database' | 'other' {
     // Frontend detection
     if (filePath.includes('/frontend/') ||
@@ -81,10 +109,13 @@ async function main() {
         const input = readFileSync(0, 'utf-8');
         const data: HookInput = JSON.parse(input);
 
-        const { session_id } = data;
+        const sessionId = data.session_id && data.session_id !== 'null'
+            ? data.session_id
+            : 'default';
+        const homeDir = process.env.HOME || process.env.USERPROFILE || '/root';
 
         // Check for edited files tracking
-        const cacheDir = join(process.env.HOME || '/root', '.claude', 'tsc-cache', session_id);
+        const cacheDir = join(homeDir, '.claude', 'tsc-cache', sessionId);
         const trackingFile = join(cacheDir, 'edited-files.log');
 
         if (!existsSync(trackingFile)) {
@@ -95,13 +126,11 @@ async function main() {
         // Read tracking data
         const trackingContent = readFileSync(trackingFile, 'utf-8');
         const editedFiles = trackingContent
-            .trim()
             .split('\n')
+            .map(line => line.trim())
             .filter(line => line.length > 0)
-            .map(line => {
-                const [timestamp, tool, path] = line.split('\t');
-                return { timestamp, tool, path };
-            });
+            .map(parseEditedFile)
+            .filter((entry): entry is EditedFile => entry !== null);
 
         if (editedFiles.length === 0) {
             process.exit(0);

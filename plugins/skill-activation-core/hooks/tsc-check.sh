@@ -4,7 +4,26 @@
 # Uses stderr for visibility in Claude Code main interface
 
 HOOK_INPUT=$(cat)
-SESSION_ID="${session_id:-default}"
+SESSION_ID=$(echo "$HOOK_INPUT" | jq -r '.session_id // empty')
+WORKSPACE_ROOT=$(echo "$HOOK_INPUT" | jq -r '.workspace_root // empty')
+CWD_FROM_INPUT=$(echo "$HOOK_INPUT" | jq -r '.cwd // empty')
+
+if [[ "$SESSION_ID" == "null" || -z "$SESSION_ID" ]]; then
+    SESSION_ID="default"
+fi
+if [[ "$WORKSPACE_ROOT" == "null" ]]; then
+    WORKSPACE_ROOT=""
+fi
+if [[ "$CWD_FROM_INPUT" == "null" ]]; then
+    CWD_FROM_INPUT=""
+fi
+
+PROJECT_ROOT="${WORKSPACE_ROOT:-$CWD_FROM_INPUT}"
+if [[ -z "$PROJECT_ROOT" ]]; then
+    PROJECT_ROOT=$(pwd)
+fi
+PROJECT_ROOT="${PROJECT_ROOT%/}"
+
 CACHE_DIR="$HOME/.claude/tsc-cache/$SESSION_ID"
 
 # Create cache directory
@@ -17,17 +36,74 @@ TOOL_INPUT=$(echo "$HOOK_INPUT" | jq -r '.tool_input // {}')
 # Function to get repo for a file
 get_repo_for_file() {
     local file_path="$1"
-    local relative_path="${file_path#${CLAUDE_PLUGIN_ROOT}/}"
-    
-    if [[ "$relative_path" =~ ^([^/]+)/ ]]; then
-        local repo="${BASH_REMATCH[1]}"
-        case "$repo" in
-            email|exports|form|frontend|projects|uploads|users|utilities|events|database)
-                echo "$repo"
-                return 0
-                ;;
-        esac
+    local root="$PROJECT_ROOT"
+
+    if [[ -z "$file_path" ]]; then
+        echo ""
+        return 1
     fi
+
+    if [[ "$file_path" != /* ]]; then
+        file_path="${root}/${file_path}"
+    fi
+
+    local normalized_root="${root%/}"
+    local relative_path="$file_path"
+
+    if [[ -n "$normalized_root" ]]; then
+        relative_path="${file_path#$normalized_root/}"
+    fi
+
+    relative_path="${relative_path#/}"
+    local repo=$(echo "$relative_path" | cut -d'/' -f1)
+
+    case "$repo" in
+        frontend|client|web|app|ui)
+            echo "$repo"
+            return 0
+            ;;
+        backend|server|api|src|services)
+            echo "$repo"
+            return 0
+            ;;
+        database|prisma|migrations)
+            echo "$repo"
+            return 0
+            ;;
+        packages)
+            local package=$(echo "$relative_path" | cut -d'/' -f2)
+            if [[ -n "$package" ]]; then
+                echo "packages/$package"
+            else
+                echo "$repo"
+            fi
+            return 0
+            ;;
+        examples)
+            local example=$(echo "$relative_path" | cut -d'/' -f2)
+            if [[ -n "$example" ]]; then
+                echo "examples/$example"
+            else
+                echo "$repo"
+            fi
+            return 0
+            ;;
+        "" )
+            echo "root"
+            return 0
+            ;;
+    esac
+
+    if [[ "$relative_path" != */* && -n "$relative_path" ]]; then
+        echo "root"
+        return 0
+    fi
+
+    if [[ -n "$repo" ]]; then
+        echo "$repo"
+        return 0
+    fi
+
     echo ""
     return 1
 }
@@ -61,8 +137,13 @@ get_tsc_command() {
 # Function to run TSC check
 run_tsc_check() {
     local repo="$1"
-    local repo_path="${CLAUDE_PLUGIN_ROOT}/$repo"
+    local root="$PROJECT_ROOT"
+    local repo_path="${root}/$repo"
     local cache_file="$CACHE_DIR/$repo-tsc-cmd.cache"
+    
+    if [[ "$repo" == "root" ]]; then
+        repo_path="${root}"
+    fi
     
     cd "$repo_path" 2>/dev/null || return 1
     
@@ -102,7 +183,7 @@ case "$TOOL_NAME" in
         if [ -n "$REPOS_TO_CHECK" ]; then
             ERROR_COUNT=0
             ERROR_OUTPUT=""
-            FAILED_REPOS=""
+            FAILED_REPOS=()
             
             # Output to stderr for visibility
             echo "⚡ TypeScript check on: $REPOS_TO_CHECK" >&2
@@ -117,8 +198,8 @@ case "$TOOL_NAME" in
                 # Check for TypeScript errors in output
                 if [ $CHECK_EXIT_CODE -ne 0 ] || echo "$CHECK_OUTPUT" | grep -q "error TS"; then
                     echo "❌ Errors found" >&2
-                    ERROR_COUNT=$((ERROR_COUNT + 1))
-                    FAILED_REPOS="$FAILED_REPOS $repo"
+                        ERROR_COUNT=$((ERROR_COUNT + 1))
+                        FAILED_REPOS+=("$repo")
                     ERROR_OUTPUT="${ERROR_OUTPUT}
 
 === Errors in $repo ===
@@ -132,20 +213,22 @@ $CHECK_OUTPUT"
             if [ $ERROR_COUNT -gt 0 ]; then
                 # Save error information for the agent
                 echo "$ERROR_OUTPUT" > "$CACHE_DIR/last-errors.txt"
-                echo "$FAILED_REPOS" > "$CACHE_DIR/affected-repos.txt"
-                
-                # Save the TSC commands used for each repo
-                echo "# TSC Commands by Repo" > "$CACHE_DIR/tsc-commands.txt"
-                for repo in $FAILED_REPOS; do
-                    cmd=$(cat "$CACHE_DIR/$repo-tsc-cmd.cache" 2>/dev/null || echo "npx tsc --noEmit")
-                    echo "$repo: $cmd" >> "$CACHE_DIR/tsc-commands.txt"
-                done
+                if [ ${#FAILED_REPOS[@]} -gt 0 ]; then
+                    printf "%s\n" "${FAILED_REPOS[@]}" > "$CACHE_DIR/affected-repos.txt"
+                    
+                    # Save the TSC commands used for each repo
+                    echo "# TSC Commands by Repo" > "$CACHE_DIR/tsc-commands.txt"
+                    for repo in "${FAILED_REPOS[@]}"; do
+                        cmd=$(cat "$CACHE_DIR/$repo-tsc-cmd.cache" 2>/dev/null || echo "npx tsc --noEmit")
+                        echo "$repo: $cmd" >> "$CACHE_DIR/tsc-commands.txt"
+                    done
+                fi
                 
                 # Output to stderr for visibility
                 {
                     echo ""
                     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                    echo "🚨 TypeScript errors found in $ERROR_COUNT repo(s): $FAILED_REPOS"
+                    echo "🚨 TypeScript errors found in $ERROR_COUNT repo(s): ${FAILED_REPOS[*]}"
                     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                     echo ""
                     echo "👉 IMPORTANT: Use the auto-error-resolver agent to fix the errors"
