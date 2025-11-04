@@ -1,0 +1,16 @@
+{
+  "name": "code-quality-suite",
+  "version": "1.0.0",
+  "description": "Code review, refactoring, and documentation agents",
+  "keywords": ["code-quality", "refactoring", "documentation", "code-review", "agents"],
+  "author": "Claude Code Infrastructure Contributors",
+  "homepage": "https://github.com/your-org/claude-code-infrastructure-showcase",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/claude-code-infrastructure-showcase.git",
+    "directory": "plugins/code-quality-suite"
+  },
+  "license": "MIT",
+  "agents": ["./agents"],
+  "commands": ["./commands"]
+}

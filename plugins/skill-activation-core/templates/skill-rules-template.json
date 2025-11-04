@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "description": "Skill activation triggers template",
+  "skills": {
+    "example-skill": {
+      "type": "domain",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "Description of your skill",
+      "promptTriggers": {
+        "keywords": [
+          "keyword1",
+          "keyword2"
+        ],
+        "intentPatterns": [
+          "(create|add).*?something",
+          "(how to|best practice).*?something"
+        ]
+      },
+      "fileTriggers": {
+        "pathPatterns": [
+          "src/**/*.ts",
+          "lib/**/*.js"
+        ],
+        "pathExclusions": [
+          "**/*.test.ts",
+          "**/*.spec.ts"
+        ],
+        "contentPatterns": [
+          "import.*something",
+          "export.*Something"
+        ]
+      }
+    }
+  },
+  "notes": {
+    "enforcement_types": {
+      "suggest": "Skill suggestion appears but doesn't block execution",
+      "block": "Requires skill to be used before proceeding (guardrail)",
+      "warn": "Shows warning but allows proceeding"
+    },
+    "priority_levels": {
+      "critical": "Highest - Always trigger when matched",
+      "high": "Important - Trigger for most matches",
+      "medium": "Moderate - Trigger for clear matches",
+      "low": "Optional - Trigger only for explicit matches"
+    },
+    "customization": {
+      "pathPatterns": "Adjust to match your project structure",
+      "keywords": "Add domain-specific terms relevant to your project",
+      "intentPatterns": "Use regex for flexible user intent matching"
+    }
+  }
+}

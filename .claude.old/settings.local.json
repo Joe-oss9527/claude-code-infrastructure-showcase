@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for file in /root/git/claude-code-infrastructure-showcase/.claude/skills/frontend-dev-guidelines/resources/*.md)",
+      "Bash(done)",
+      "Bash(tree:*)",
+      "Bash(for file in plugins/*/.claude-plugin/plugin.json)",
+      "Bash(do:*)",
+      "Bash(echo:*)",
+      "Bash(jq:*)",
+      "Bash(for file in plugins/*/skill-rules.json)",
+      "Bash([ -f \"$file\" ])",
+      "Bash({)",
+      "Bash(})",
+      "Bash(bash -n:*)",
+      "Bash(bash:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

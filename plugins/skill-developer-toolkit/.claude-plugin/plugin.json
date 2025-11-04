@@ -1,0 +1,15 @@
+{
+  "name": "skill-developer-toolkit",
+  "version": "1.0.0",
+  "description": "Meta-skill for creating Claude Code skills, hooks, and plugins",
+  "keywords": ["meta", "skill-development", "plugin-development", "hooks", "documentation"],
+  "author": "Claude Code Infrastructure Contributors",
+  "homepage": "https://github.com/your-org/claude-code-infrastructure-showcase",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/claude-code-infrastructure-showcase.git",
+    "directory": "plugins/skill-developer-toolkit"
+  },
+  "license": "MIT",
+  "skills": ["./skills"]
+}

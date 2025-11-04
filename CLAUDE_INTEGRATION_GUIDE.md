@@ -1,5 +1,22 @@
 # Claude Integration Guide
 
+> **⚠️ UPDATED FOR v1.0 PLUGIN ARCHITECTURE (2025-11-04)**
+>
+> This repository has been migrated to the official Claude Code plugin specification.
+> Components are now organized into 6 independent plugins in the `plugins/` directory.
+>
+> **Key Changes:**
+> - Old: `.claude/skills/` → New: `plugins/*/skills/`
+> - Old: `.claude/agents/` → New: `plugins/*/agents/`
+> - Old: `.claude/hooks/` → New: `plugins/skill-activation-core/hooks/`
+> - Installation: Copy plugins to `~/.claude/plugins/` or `./.claude/plugins/`
+> - See [QUICK_START.md](QUICK_START.md) for modern installation instructions
+> - See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for migration from old structure
+>
+> **The core integration principles below still apply**, but references to `.claude/` paths should now point to `plugins/*/`.
+
+---
+
 **FOR CLAUDE CODE:** When a user asks you to integrate components from this showcase repository into their project, follow these instructions carefully.
 
 ---
@@ -171,11 +188,11 @@ ls $CLAUDE_PROJECT_DIR/.claude/skills/skill-rules.json
 #### 5. Verify Integration
 
 ```bash
-# Check skill was copied
-ls -la $CLAUDE_PROJECT_DIR/.claude/skills/[skill-name]
+# Check plugin was copied
+ls -la ~/.claude/plugins/[plugin-name]
 
-# Validate skill-rules.json syntax
-cat $CLAUDE_PROJECT_DIR/.claude/skills/skill-rules.json | jq .
+# Validate skill-rules.json syntax (if plugin has one)
+cat ~/.claude/plugins/[plugin-name]/skill-rules.json | jq .
 ```
 
 **Tell user:** "Try editing a file in [their-backend-path] and the skill should activate."
@@ -259,7 +276,8 @@ When user's tech stack differs from skill requirements, you have options:
 
 **Example - Adapting frontend-dev-guidelines for Vue:**
 ```
-I'll create vue-dev-guidelines based on the React skill structure:
+I'll create a custom vue-dev-guidelines plugin based on the React skill:
+- Copy plugins/frontend-development as a template
 - Replace React.FC → Vue defineComponent
 - Replace useSuspenseQuery → Vue composables
 - Replace MUI components → [their component library]
@@ -374,23 +392,9 @@ if [ -f "showcase/.claude/hooks/package.json" ]; then
 fi
 ```
 
-**Add to settings.json:**
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/skill-activation-prompt.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+**Plugin hooks are automatically registered!**
+
+No settings.json configuration needed - the skill-activation-core plugin's hooks.json handles registration automatically via the plugin system.
 
 **This hook is FULLY GENERIC** - works anywhere, no customization needed!
 

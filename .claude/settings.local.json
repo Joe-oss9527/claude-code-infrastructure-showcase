@@ -1,8 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(for file in /root/git/claude-code-infrastructure-showcase/.claude/skills/frontend-dev-guidelines/resources/*.md)",
-      "Bash(done)"
+      "Bash(for dir in plugins/*/)",
+      "Bash([ -f .claude.old/README.md ])",
+      "Bash(git add:*)",
+      "Bash(for f in plugins/*/.claude-plugin/plugin.json)",
+      "Bash(/dev/null)"
     ],
     "deny": [],
     "ask": []

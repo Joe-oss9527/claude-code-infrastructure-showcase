@@ -1,0 +1,35 @@
+# .claude/ Directory Migrated to Plugins
+
+The legacy `.claude/` directory structure has been migrated to the official plugin architecture.
+
+## What Happened
+
+All content from `.claude/` has been reorganized into 6 independent plugins:
+
+1. **skill-activation-core** - Hooks and auto-activation system
+2. **backend-development** - Backend skills and agents
+3. **frontend-development** - Frontend skills and agents
+4. **testing-utilities** - Testing skills
+5. **skill-developer-toolkit** - Skill development meta-skill
+6. **code-quality-suite** - Review/refactor/documentation agents
+
+## Where to Find Things Now
+
+- **Old**: `.claude/skills/` → **New**: `plugins/*/skills/`
+- **Old**: `.claude/agents/` → **New**: `plugins/*/agents/`
+- **Old**: `.claude/commands/` → **New**: `plugins/code-quality-suite/commands/`
+- **Old**: `.claude/hooks/` → **New**: `plugins/skill-activation-core/hooks/`
+- **Old**: `.claude/skills/skill-rules.json` → **New**: `plugins/*/skill-rules.json` (split across plugins)
+
+## Installation
+
+See [QUICK_START.md](../QUICK_START.md) for installation instructions.
+
+## Migration
+
+See [MIGRATION_GUIDE.md](../MIGRATION_GUIDE.md) if upgrading from the old structure.
+
+---
+
+**Migration Date**: 2025-11-04
+**New Architecture Version**: 1.0.0
