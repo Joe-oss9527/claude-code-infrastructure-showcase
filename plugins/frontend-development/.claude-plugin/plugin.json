@@ -4,10 +4,10 @@
   "description": "React/TypeScript/MUI v7 patterns with Sentry integration",
   "keywords": ["frontend", "react", "typescript", "mui", "tanstack", "sentry", "ui-components"],
   "author": "Claude Code Infrastructure Contributors",
-  "homepage": "https://github.com/your-org/claude-code-infrastructure-showcase",
+  "homepage": "https://github.com/Joe-oss9527/claude-code-infrastructure-showcase",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/claude-code-infrastructure-showcase.git",
+    "url": "https://github.com/Joe-oss9527/claude-code-infrastructure-showcase.git",
     "directory": "plugins/frontend-development"
   },
   "license": "MIT",

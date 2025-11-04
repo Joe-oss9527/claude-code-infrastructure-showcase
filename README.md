@@ -92,7 +92,7 @@ If you used the previous `.claude/` structure, see [MIGRATION_GUIDE.md](MIGRATIO
 ### New User? Start Here
 ```bash
 # Clone repository
-git clone https://github.com/your-org/claude-code-infrastructure-showcase
+git clone https://github.com/Joe-oss9527/claude-code-infrastructure-showcase
 
 # See quick start guide
 cat QUICK_START.md

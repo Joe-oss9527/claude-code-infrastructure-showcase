@@ -4,10 +4,10 @@
   "description": "Core engine for auto-activating Claude Code skills based on context",
   "keywords": ["hooks", "skill-activation", "automation", "development-workflow", "typescript"],
   "author": "Claude Code Infrastructure Contributors",
-  "homepage": "https://github.com/your-org/claude-code-infrastructure-showcase",
+  "homepage": "https://github.com/Joe-oss9527/claude-code-infrastructure-showcase",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/claude-code-infrastructure-showcase.git",
+    "url": "https://github.com/Joe-oss9527/claude-code-infrastructure-showcase.git",
     "directory": "plugins/skill-activation-core"
   },
   "license": "MIT",

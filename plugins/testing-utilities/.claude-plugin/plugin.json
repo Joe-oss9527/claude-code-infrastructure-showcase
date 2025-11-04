@@ -4,10 +4,10 @@
   "description": "API route testing patterns with JWT cookie auth",
   "keywords": ["testing", "api-testing", "authentication", "jwt", "route-testing"],
   "author": "Claude Code Infrastructure Contributors",
-  "homepage": "https://github.com/your-org/claude-code-infrastructure-showcase",
+  "homepage": "https://github.com/Joe-oss9527/claude-code-infrastructure-showcase",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/claude-code-infrastructure-showcase.git",
+    "url": "https://github.com/Joe-oss9527/claude-code-infrastructure-showcase.git",
     "directory": "plugins/testing-utilities"
   },
   "license": "MIT",

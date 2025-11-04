@@ -4,10 +4,10 @@
   "description": "Backend dev patterns for Node.js/Express/TypeScript/Prisma",
   "keywords": ["backend", "nodejs", "express", "typescript", "prisma", "microservices", "api", "sentry"],
   "author": "Claude Code Infrastructure Contributors",
-  "homepage": "https://github.com/your-org/claude-code-infrastructure-showcase",
+  "homepage": "https://github.com/Joe-oss9527/claude-code-infrastructure-showcase",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/claude-code-infrastructure-showcase.git",
+    "url": "https://github.com/Joe-oss9527/claude-code-infrastructure-showcase.git",
     "directory": "plugins/backend-development"
   },
   "license": "MIT",
